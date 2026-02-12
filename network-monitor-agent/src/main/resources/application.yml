@@ -1,0 +1,10 @@
+monitor:
+  backend:
+    ws-url: ws://${BACKEND_HOST:localhost}:${BACKEND_PORT:8080}/ws
+  agent:
+    hostname: ${AGENT_HOSTNAME:}
+    collect-interval-ms: 3000
+
+logging:
+  level:
+    com.networkmonitor.agent: INFO
