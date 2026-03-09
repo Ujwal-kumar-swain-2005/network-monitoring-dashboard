@@ -1,0 +1,74 @@
+version: '3.8'
+
+services:
+  # ===== PostgreSQL Database =====
+  postgres:
+    image: postgres:16-alpine
+    container_name: netpulse-postgres
+    environment:
+      POSTGRES_DB: networkmonitor
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - netpulse
+
+  # ===== Spring Boot Backend =====
+  backend:
+    build: ./network-monitor-backend
+    container_name: netpulse-backend
+    ports:
+      - "8080:8080"
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: networkmonitor
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - netpulse
+    restart: unless-stopped
+
+  # ===== React Frontend =====
+  frontend:
+    build: ./network-monitor-frontend
+    container_name: netpulse-frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    networks:
+      - netpulse
+    restart: unless-stopped
+
+  # ===== Monitoring Agent =====
+  agent:
+    build: ./network-monitor-agent
+    container_name: netpulse-agent
+    environment:
+      BACKEND_HOST: backend
+      BACKEND_PORT: 8080
+      AGENT_HOSTNAME: docker-agent-01
+    depends_on:
+      - backend
+    networks:
+      - netpulse
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+
+networks:
+  netpulse:
+    driver: bridge
