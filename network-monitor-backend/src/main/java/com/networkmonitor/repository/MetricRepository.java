@@ -23,7 +23,7 @@ public interface MetricRepository extends JpaRepository<Metric, Long> {
     List<Metric> findByServerIdAndTimestampBetweenOrderByTimestampAsc(
             Long serverId, LocalDateTime start, LocalDateTime end);
 
-    @Query("SELECT m FROM Metric m WHERE m.serverId = :serverId ORDER BY m.timestamp DESC LIMIT 1")
+    @Query(value = "SELECT * FROM metrics m WHERE m.server_id = :serverId ORDER BY m.timestamp DESC LIMIT 1", nativeQuery = true)
     Optional<Metric> findLatestByServerId(@Param("serverId") Long serverId);
 
     @Query("SELECT m FROM Metric m WHERE m.serverId = :serverId ORDER BY m.timestamp DESC")
