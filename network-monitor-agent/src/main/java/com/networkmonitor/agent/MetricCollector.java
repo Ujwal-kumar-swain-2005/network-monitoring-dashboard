@@ -1,6 +1,8 @@
 package com.networkmonitor.agent;
 
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import oshi.SystemInfo;
@@ -21,7 +23,7 @@ import java.util.List;
 @Component
 @Slf4j
 public class MetricCollector {
-
+    private static final Logger log =  LoggerFactory.getLogger(MetricCollector.class);
     private final SystemInfo systemInfo = new SystemInfo();
     private long[] previousTicks;
     private long previousNetIn = 0;
@@ -79,15 +81,15 @@ public class MetricCollector {
         previousNetOut = currentNetOut;
         initialized = true;
 
-        MetricPayload payload = MetricPayload.builder()
-                .hostname(getHostname())
-                .ipAddress(getIpAddress())
-                .cpuUsage(Math.round(cpuUsage * 100.0) / 100.0)
-                .memoryUsage(Math.round(memoryUsage * 100.0) / 100.0)
-                .networkIn(deltaNetIn)
-                .networkOut(deltaNetOut)
-                .timestamp(LocalDateTime.now())
-                .build();
+        MetricPayload payload = new MetricPayload(
+                getHostname(),
+                getIpAddress(),
+                Math.round(cpuUsage * 100.0) / 100.0,
+                Math.round(memoryUsage * 100.0) / 100.0,
+                deltaNetIn,
+                deltaNetOut,
+                LocalDateTime.now()
+        );
 
         log.debug("Collected metrics — CPU: {}%, MEM: {}%, NetIn: {}, NetOut: {}",
                 payload.getCpuUsage(), payload.getMemoryUsage(),

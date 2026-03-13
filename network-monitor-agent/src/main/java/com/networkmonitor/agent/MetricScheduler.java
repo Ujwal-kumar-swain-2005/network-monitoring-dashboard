@@ -2,6 +2,8 @@ package com.networkmonitor.agent;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -12,12 +14,16 @@ import org.springframework.stereotype.Component;
  * Default interval: 3000ms (configurable via monitor.agent.collect-interval-ms)
  */
 @Component
-@RequiredArgsConstructor
 @Slf4j
 public class MetricScheduler {
-
+    private static final Logger log =  LoggerFactory.getLogger(MetricScheduler.class);
     private final MetricCollector metricCollector;
     private final AgentWebSocketClient webSocketClient;
+
+    public MetricScheduler(MetricCollector metricCollector, AgentWebSocketClient webSocketClient) {
+        this.metricCollector = metricCollector;
+        this.webSocketClient = webSocketClient;
+    }
 
     /**
      * Collects system metrics and sends them to the backend.
