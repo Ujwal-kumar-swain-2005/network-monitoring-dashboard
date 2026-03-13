@@ -3,6 +3,7 @@ package com.networkmonitor.controller;
 import com.networkmonitor.dto.ServerDTO;
 import com.networkmonitor.service.ServerService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,8 +16,8 @@ import java.util.List;
 @RequestMapping("/api/servers")
 @RequiredArgsConstructor
 public class ServerController {
-
-    private final ServerService serverService;
+    @Autowired
+    private  ServerService serverService;
 
     /**
      * GET /api/servers — List all monitored servers with latest metrics.

@@ -4,6 +4,7 @@ import com.networkmonitor.dto.MetricDTO;
 import com.networkmonitor.service.MetricService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.stereotype.Controller;
 
@@ -18,8 +19,8 @@ import org.springframework.stereotype.Controller;
 @RequiredArgsConstructor
 @Slf4j
 public class MetricWebSocketController {
-
-    private final MetricService metricService;
+    @Autowired
+    private  MetricService metricService;
 
     /**
      * Receives metric data from monitoring agents via STOMP.

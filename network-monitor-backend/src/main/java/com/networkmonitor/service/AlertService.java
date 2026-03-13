@@ -6,8 +6,10 @@ import com.networkmonitor.entity.Alert;
 import com.networkmonitor.entity.Server;
 import com.networkmonitor.repository.AlertRepository;
 import com.networkmonitor.repository.ServerRepository;
-import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -22,13 +24,17 @@ import java.util.stream.Collectors;
  * Monitors CPU usage, memory usage, and broadcasts alerts to connected dashboards.
  */
 @Service
-@RequiredArgsConstructor
+
 @Slf4j
 public class AlertService {
 
-    private final AlertRepository alertRepository;
-    private final ServerRepository serverRepository;
-    private final SimpMessagingTemplate messagingTemplate;
+    private static final Logger log =  LoggerFactory.getLogger(AlertService.class);
+    @Autowired
+    private AlertRepository alertRepository;
+    @Autowired
+    private  ServerRepository serverRepository;
+    @Autowired
+    private  SimpMessagingTemplate messagingTemplate;
 
     @Value("${monitoring.alerts.cpu-threshold:90.0}")
     private double cpuThreshold;
@@ -62,13 +68,8 @@ public class AlertService {
      * Creates an alert, persists it, and broadcasts to connected dashboards.
      */
     private void createAlert(Server server, String type, String message, String severity) {
-        Alert alert = Alert.builder()
-                .serverId(server.getId())
-                .type(type)
-                .message(message)
-                .severity(severity)
-                .createdAt(LocalDateTime.now())
-                .build();
+        Alert alert = new Alert(server.getId(), type,message,severity,LocalDateTime.now());
+
 
         alertRepository.save(alert);
 
@@ -110,14 +111,7 @@ public class AlertService {
     }
 
     private AlertDTO toDTO(Alert alert, String hostname) {
-        return AlertDTO.builder()
-                .id(alert.getId())
-                .serverId(alert.getServerId())
-                .serverHostname(hostname)
-                .type(alert.getType())
-                .message(alert.getMessage())
-                .severity(alert.getSeverity())
-                .createdAt(alert.getCreatedAt())
-                .build();
+        AlertDTO alertDto = new AlertDTO(alert.getId(), alert.getServerId(), hostname,alert.getType(),alert.getMessage(),alert.getSeverity(),alert.getCreatedAt());
+        return alertDto;
     }
 }

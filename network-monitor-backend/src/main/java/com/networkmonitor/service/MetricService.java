@@ -6,6 +6,8 @@ import com.networkmonitor.entity.Server;
 import com.networkmonitor.repository.MetricRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
@@ -24,11 +26,15 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Slf4j
 public class MetricService {
-
-    private final MetricRepository metricRepository;
-    private final ServerService serverService;
-    private final AlertService alertService;
-    private final SimpMessagingTemplate messagingTemplate;
+    private Logger log;
+    @Autowired
+    private  MetricRepository metricRepository;
+    @Autowired
+    private  ServerService serverService;
+    @Autowired
+    private  AlertService alertService;
+    @Autowired
+    private  SimpMessagingTemplate messagingTemplate;
 
     /**
      * Processes an incoming metric from a monitoring agent.
@@ -41,19 +47,19 @@ public class MetricService {
     public void processMetric(MetricDTO dto) {
         // Register or update the server
         Server server = serverService.upsertServer(dto.getHostname(), dto.getIpAddress());
+        Metric metric = new Metric(
+                server.getId(),
+                dto.getCpuUsage(),
+                dto.getMemoryUsage(),
+                dto.getNetworkIn(),
+                dto.getNetworkOut(),
+                dto.getTimestamp() != null ? dto.getTimestamp() : LocalDateTime.now()
+        );
 
-        // Persist metric data
-        Metric metric = Metric.builder()
-                .serverId(server.getId())
-                .cpuUsage(dto.getCpuUsage())
-                .memoryUsage(dto.getMemoryUsage())
-                .networkIn(dto.getNetworkIn())
-                .networkOut(dto.getNetworkOut())
-                .timestamp(dto.getTimestamp() != null ? dto.getTimestamp() : LocalDateTime.now())
-                .build();
+        metricRepository.save(metric);
         metricRepository.save(metric);
 
-        // Enrich DTO with server ID and broadcast to all connected dashboards
+
         dto.setServerId(server.getId());
         messagingTemplate.convertAndSend("/topic/metrics", dto);
 
@@ -85,13 +91,15 @@ public class MetricService {
     }
 
     private MetricDTO toDTO(Metric metric) {
-        return MetricDTO.builder()
-                .serverId(metric.getServerId())
-                .cpuUsage(metric.getCpuUsage())
-                .memoryUsage(metric.getMemoryUsage())
-                .networkIn(metric.getNetworkIn())
-                .networkOut(metric.getNetworkOut())
-                .timestamp(metric.getTimestamp())
-                .build();
+        MetricDTO dto = new MetricDTO(
+                metric.getServerId(),
+                metric.getCpuUsage(),
+                metric.getMemoryUsage(),
+                metric.getNetworkIn(),
+                metric.getNetworkOut(),
+                metric.getTimestamp()
+        );
+
+        return dto;
     }
 }

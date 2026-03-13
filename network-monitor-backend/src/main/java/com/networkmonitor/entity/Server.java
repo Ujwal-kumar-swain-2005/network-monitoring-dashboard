@@ -11,10 +11,7 @@ import java.time.LocalDateTime;
  */
 @Entity
 @Table(name = "servers")
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
+
 public class Server {
 
     @Id
@@ -33,4 +30,60 @@ public class Server {
 
     @Column(name = "last_seen")
     private LocalDateTime lastSeen;
+
+    public Server() {
+    }
+    public Server(String hostname, String ipAddress, String status, LocalDateTime lastSeen) {
+        this.hostname = hostname;
+        this.ipAddress = ipAddress;
+        this.status = status;
+        this.lastSeen = lastSeen;
+    }
+    public Server(Long id, String hostname, String ipAddress, String status, LocalDateTime lastSeen) {
+        this.id = id;
+        this.hostname = hostname;
+        this.ipAddress = ipAddress;
+        this.status = status;
+        this.lastSeen = lastSeen;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getHostname() {
+        return hostname;
+    }
+
+    public void setHostname(String hostname) {
+        this.hostname = hostname;
+    }
+
+    public String getIpAddress() {
+        return ipAddress;
+    }
+
+    public void setIpAddress(String ipAddress) {
+        this.ipAddress = ipAddress;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public LocalDateTime getLastSeen() {
+        return lastSeen;
+    }
+
+    public void setLastSeen(LocalDateTime lastSeen) {
+        this.lastSeen = lastSeen;
+    }
 }

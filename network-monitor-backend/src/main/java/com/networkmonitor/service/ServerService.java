@@ -7,11 +7,13 @@ import com.networkmonitor.repository.MetricRepository;
 import com.networkmonitor.repository.ServerRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import org.slf4j.Logger;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -22,13 +24,13 @@ import java.util.stream.Collectors;
  * Handles server registration, status updates, and health checks.
  */
 @Service
-@RequiredArgsConstructor
 @Slf4j
 public class ServerService {
-
-    private final ServerRepository serverRepository;
-    private final MetricRepository metricRepository;
-
+    @Autowired
+    private  ServerRepository serverRepository;
+    @Autowired
+    private  MetricRepository metricRepository;
+    private static final Logger log =  LoggerFactory.getLogger(ServerService.class);
     @Value("${monitoring.server.timeout-seconds:30}")
     private int timeoutSeconds;
 
@@ -48,12 +50,12 @@ public class ServerService {
             return serverRepository.save(server);
         }
 
-        Server newServer = Server.builder()
-                .hostname(hostname)
-                .ipAddress(ipAddress)
-                .status("ONLINE")
-                .lastSeen(LocalDateTime.now())
-                .build();
+        Server newServer = new Server(
+                hostname,
+                ipAddress,
+                "ONLINE",
+                LocalDateTime.now()
+        );
 
         log.info("New server registered: {} ({})", hostname, ipAddress);
         return serverRepository.save(newServer);
@@ -101,13 +103,13 @@ public class ServerService {
      * Converts a Server entity to a ServerDTO, enriching it with the latest metrics.
      */
     private ServerDTO toDTO(Server server) {
-        ServerDTO dto = ServerDTO.builder()
-                .id(server.getId())
-                .hostname(server.getHostname())
-                .ipAddress(server.getIpAddress())
-                .status(server.getStatus())
-                .lastSeen(server.getLastSeen())
-                .build();
+        ServerDTO dto = new ServerDTO(
+                server.getId(),
+                server.getHostname(),
+                server.getIpAddress(),
+                server.getStatus(),
+                server.getLastSeen()
+        );
 
         // Attach latest metric data if available
         metricRepository.findLatestByServerId(server.getId())

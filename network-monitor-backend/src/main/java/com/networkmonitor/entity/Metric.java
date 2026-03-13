@@ -14,10 +14,6 @@ import java.time.LocalDateTime;
     @Index(name = "idx_metrics_server_id", columnList = "server_id"),
     @Index(name = "idx_metrics_timestamp", columnList = "timestamp")
 })
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
 public class Metric {
 
     @Id
@@ -41,4 +37,82 @@ public class Metric {
 
     @Column(nullable = false)
     private LocalDateTime timestamp;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Long getServerId() {
+        return serverId;
+    }
+
+    public void setServerId(Long serverId) {
+        this.serverId = serverId;
+    }
+
+    public Double getCpuUsage() {
+        return cpuUsage;
+    }
+
+    public void setCpuUsage(Double cpuUsage) {
+        this.cpuUsage = cpuUsage;
+    }
+
+    public Double getMemoryUsage() {
+        return memoryUsage;
+    }
+
+    public void setMemoryUsage(Double memoryUsage) {
+        this.memoryUsage = memoryUsage;
+    }
+
+    public Long getNetworkIn() {
+        return networkIn;
+    }
+
+    public void setNetworkIn(Long networkIn) {
+        this.networkIn = networkIn;
+    }
+
+    public Long getNetworkOut() {
+        return networkOut;
+    }
+
+    public void setNetworkOut(Long networkOut) {
+        this.networkOut = networkOut;
+    }
+
+    public LocalDateTime getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(LocalDateTime timestamp) {
+        this.timestamp = timestamp;
+    }
+
+    public Metric() {
+    }
+
+    public Metric(Long serverId, Double cpuUsage, Double memoryUsage, Long networkIn, Long networkOut, LocalDateTime timestamp) {
+        this.serverId = serverId;
+        this.cpuUsage = cpuUsage;
+        this.memoryUsage = memoryUsage;
+        this.networkIn = networkIn;
+        this.networkOut = networkOut;
+        this.timestamp = timestamp;
+    }
+
+    public Metric(Long id, Long serverId, Double cpuUsage, Double memoryUsage, Long networkIn, Long networkOut, LocalDateTime timestamp) {
+        this.id = id;
+        this.serverId = serverId;
+        this.cpuUsage = cpuUsage;
+        this.memoryUsage = memoryUsage;
+        this.networkIn = networkIn;
+        this.networkOut = networkOut;
+        this.timestamp = timestamp;
+    }
 }

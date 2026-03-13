@@ -3,6 +3,7 @@ package com.networkmonitor.controller;
 import com.networkmonitor.dto.MetricDTO;
 import com.networkmonitor.service.MetricService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,8 +18,8 @@ import java.util.List;
 @RequestMapping("/api/metrics")
 @RequiredArgsConstructor
 public class MetricController {
-
-    private final MetricService metricService;
+    @Autowired
+    private  MetricService metricService;
 
     /**
      * GET /api/metrics/server/{serverId}?limit=50 — Get recent metrics for a server.
